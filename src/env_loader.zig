@@ -687,7 +687,7 @@ const Parser = struct {
             }
         }
         this.pos = end;
-        return strings.trim(this.src[start..end], whitespace_chars);
+        return this.src[start..end];
     }
 
     inline fn writeBackwards(ptr: usize, bytes: []const u8) usize {

@@ -318,3 +318,12 @@ test(".env with zero length strings", () => {
   const { stdout } = bunRun(`${dir}/index.ts`);
   expect(stdout).toBe("||0|0");
 });
+
+test("env should not be trimmed (issue #3689)", () => {
+  const dir = tempDirWithFiles("env-issue-3689", {
+    "index.ts": "console.log(process.env.FOO);",
+  });
+
+  const { stdout } = bunRun(`${dir}/index.ts`, { FOO: " Hello, World! " });
+  expect(stdout).toStrictEqual(" Hello, World! ");
+});
