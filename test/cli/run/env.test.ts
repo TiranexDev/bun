@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { bunRun, bunTest, tempDirWithFiles, bunExe, bunEnv } from "harness";
+import { bunRun, bunTest, tempDirWithFiles, bunExe, bunEnv, bunRunAsScript } from "harness";
 import path from "path";
 
 function bunRunWithoutTrim(file: string, env?: Record<string, string>) {
@@ -403,4 +403,53 @@ describe("boundary tests", () => {
     expect(stdout).toBe(expected);
     expect(stdout2).toBe(expected);
   });
+});
+
+test("npm_package_config", () => {
+  const vals = {
+    "port": 8000,
+    "password": "hello world",
+    "isDev": true,
+    "isProd": false,
+    "piNum": 3.14,
+    "emptyStr": "",
+    "emptyStr2": " ",
+    "foo": {
+      "bar": "baz"
+    },
+    "why": 0,
+    "none": null,
+    "emoji": "🍕"
+  };
+
+  const dir = tempDirWithFiles("npmpkgcfg", {
+    "package.json": JSON.stringify({
+      config: vals,
+      "scripts": {
+        "dev": bunExe() + " run index.js"
+      }
+    }),
+    "index.js": "console.log(JSON.stringify(process.env))"
+  });
+
+  const { stdout } = bunRunAsScript(dir, "dev");
+  const jsStd = JSON.parse(stdout.toString())
+
+  for (const [key, val] of Object.entries(vals)) {
+    if (typeof val == "object") {
+      expect(jsStd[`npm_package_config_foo_bar`]).toEqual(val!.bar)
+      continue;
+    }
+
+    const jsVl = jsStd[`npm_package_config_${key}`];
+
+    expect(jsVl).toBeTypeOf("string");
+
+    if (val === false || val === null) {
+      expect(jsVl).toEqual("");
+      continue;
+    }
+
+    expect(jsVl).toEqual(String(val));
+  }
 });

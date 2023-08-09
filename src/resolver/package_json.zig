@@ -1030,10 +1030,6 @@ pub const PackageJSON = struct {
             }
 
             if (json.asProperty("config")) |npm_pkg_cfg| {
-<<<<<<< HEAD
-<<<<<<< HEAD
-                parseNpmCfg(allocator, &json_source, r, npm_pkg_cfg.expr, &package_json, "");
-=======
                 switch (npm_pkg_cfg.expr.data) {
                     .e_object => |obj| {
                         for (obj.properties.slice()) |*prop| {
@@ -1074,10 +1070,6 @@ pub const PackageJSON = struct {
                     },
                     else => r.log.addWarning(&json_source, npm_pkg_cfg.loc, "The \"config\" field must be an object") catch unreachable,
                 }
->>>>>>> d653e7c3 (Add support for numbers + booleans)
-=======
-                parseNpmCfg(allocator, &json_source, r, npm_pkg_cfg.expr, &package_json, "");
->>>>>>> 8c495ce8 (Add object support)
             }
         }
 
@@ -1097,11 +1089,11 @@ pub const PackageJSON = struct {
                     const key = prop.key.?.asString(allocator) orelse continue;
                     if (key.len <= 0) continue;
 
-                    const lkey = strings.concat(allocator, &.{prefix, key}) catch unreachable;
+                    const lkey = strings.concat(allocator, &.{ prefix, key }) catch unreachable;
 
                     switch (prop.value.?.data) {
                         .e_object => {
-                            const newkey = strings.concat(allocator, &.{lkey, "_"}) catch unreachable;
+                            const newkey = strings.concat(allocator, &.{ lkey, "_" }) catch unreachable;
                             parseNpmCfg(allocator, json_source, r, prop.value.?, package_json, newkey);
                         },
                         .e_string => {
@@ -1119,40 +1111,16 @@ pub const PackageJSON = struct {
                             if (value) {
                                 package_json.npm_cfg_map.put(lkey, "true") catch unreachable;
                             } else {
-<<<<<<< HEAD
-<<<<<<< HEAD
                                 // Node.js interprets false as an empty string
-=======
-                                // Node.js interprets false as a empty string
->>>>>>> 8c495ce8 (Add object support)
-=======
-                                // Node.js interprets false as an empty string
->>>>>>> fece4811 (Little fixes)
                                 package_json.npm_cfg_map.put(lkey, "") catch unreachable;
                             }
                         },
                         .e_null => {
-<<<<<<< HEAD
-<<<<<<< HEAD
                             // Node.js interprets null as an empty string
                             package_json.npm_cfg_map.put(lkey, "") catch unreachable;
                         },
                         else => {
                             r.log.addWarning(json_source, prop.value.?.loc, "Values of 'config' must be either a boolean, number, string, or object.") catch unreachable;
-=======
-                            // Node.js interprets null as a empty string
-                            package_json.npm_cfg_map.put(lkey, "") catch unreachable;
-                        },
-                        else => {
-                            r.log.addWarning(json_source, prop.value.?.loc, "Values of \"config\" must be either a boolean, number or string") catch unreachable;
->>>>>>> 8c495ce8 (Add object support)
-=======
-                            // Node.js interprets null as an empty string
-                            package_json.npm_cfg_map.put(lkey, "") catch unreachable;
-                        },
-                        else => {
-                            r.log.addWarning(json_source, prop.value.?.loc, "Values of 'config' must be either a boolean, number, string, or object.") catch unreachable;
->>>>>>> fece4811 (Little fixes)
                             continue;
                         },
                     }
